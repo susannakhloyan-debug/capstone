@@ -6,6 +6,7 @@
 <title>Bridgeline — Business analysis consulting for Armenian SMEs</title>
 <meta name="description" content="Bridgeline connects Armenian SMEs to a four-person business analysis team through one structured application. Apply and get a scoped proposal in 5 business days.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌉</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 @font-face {
   font-family: 'Bitter Baseline';
@@ -558,9 +559,10 @@ footer .foot-links a:hover { color: var(--ink-soft); }
   "use strict";
   const $ = (id) => document.getElementById(id);
 
-  /* ---------------- shared application store (see admin.html) ---------------- */
-  const STORAGE_KEY = "bridgeline_applications";
-  const COHORT_SIZE = 8;
+  /* ---------------- shared application store (Supabase; see admin.html) ---------------- */
+  const SUPABASE_URL = "https://dquafkblzhzomjngnwkc.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxdWFma2Jsemh6b21qbmdud2tjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMTY1NDAsImV4cCI6MjEwMjc5MjU0MH0.XkJ69n14ywSYEs4a1dq0j6JKa91vBHYve9po96sjBvE";
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   function genId() {
     return (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`).slice(0, 8).toUpperCase();
@@ -575,14 +577,21 @@ footer .foot-links a:hover { color: var(--ink-soft); }
     }
     return d.toISOString();
   }
-  function loadApplications() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-    catch { return []; }
-  }
-  function saveApplication(app) {
-    const all = loadApplications();
-    all.unshift(app);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  async function saveApplication(app) {
+    const { error } = await db.from("applications").insert({
+      id: app.id,
+      company: app.company,
+      name: app.name,
+      email: app.email,
+      size: app.size,
+      industry: app.industry,
+      message: app.message,
+      submitted_at: app.submittedAt,
+      sla_due_at: app.slaDueAt,
+      status: app.status,
+      notes: app.notes,
+    });
+    if (error) throw error;
   }
 
   /* ---------------- scroll reveal ---------------- */
@@ -632,7 +641,7 @@ footer .foot-links a:hover { color: var(--ink-soft); }
   function wireContactForm() {
     const form = $("contact-form");
     const submitBtn = $("form-submit");
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!validateForm()) return;
       submitBtn.disabled = true;
@@ -653,8 +662,8 @@ footer .foot-links a:hover { color: var(--ink-soft); }
         notes: "",
       };
 
-      setTimeout(() => {
-        saveApplication(app);
+      try {
+        await saveApplication(app);
         form.style.display = "none";
         $("form-success").classList.add("visible");
         $("receipt-id").textContent = `Application ID ${app.id} · submitted ${new Date(submittedAt).toLocaleDateString()}`;
@@ -662,7 +671,12 @@ footer .foot-links a:hover { color: var(--ink-soft); }
         const dl = $("receipt-dl");
         dl.href = URL.createObjectURL(blob);
         dl.download = `bridgeline-application-${app.id}.json`;
-      }, 500);
+      } catch (err) {
+        console.error(err);
+        $("form-error").textContent = "Something went wrong sending your application — please try again in a moment.";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit application";
+      }
     });
     REQUIRED_IDS.forEach((id) => {
       $(id).addEventListener("input", () => $(id).classList.remove("invalid"));

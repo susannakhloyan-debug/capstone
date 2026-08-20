@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700&family=Karla:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root {
   color-scheme: light;
@@ -221,14 +222,16 @@ table.apps .muted-cell { color: var(--muted); font-size: 0.82rem; }
 <div id="login-screen" class="login-shell">
   <div class="login-card">
     <h1 class="disp">Staff sign-in</h1>
-    <p class="lede">Enter the shared passphrase to review pilot applications.</p>
+    <p class="lede">Sign in with your Bridgeline staff account to review pilot applications.</p>
     <form id="login-form">
-      <label for="pass">Passphrase</label>
+      <label for="email" style="margin-top:0;">Email</label>
+      <input type="email" id="email" autocomplete="username" style="margin-bottom:14px;">
+      <label for="pass">Password</label>
       <input type="password" id="pass" autocomplete="current-password">
       <p class="login-error" id="login-error"></p>
       <button type="submit" class="btn">Sign in</button>
     </form>
-    <p class="login-hint">This is a client-side gate for a static site — it keeps casual visitors out, not a substitute for real authentication. Default passphrase: <code>bridgeline2026</code> (change the hash in this file's script to rotate it).</p>
+    <p class="login-hint">Staff accounts are created directly in Supabase (Authentication → Users) — there's no public sign-up.</p>
   </div>
 </div>
 
@@ -300,10 +303,10 @@ table.apps .muted-cell { color: var(--muted); font-size: 0.82rem; }
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
-  const STORAGE_KEY = "bridgeline_applications";
-  const AUTH_KEY = "bridgeline_admin_auth";
   const COHORT_SIZE = 8;
-  const PASS_HASH = "76e013dcbb0ce90d48e622b3ad5bc615a0e37aaaca9df9640d8d21b868ca3f6a"; // sha256("bridgeline2026")
+  const SUPABASE_URL = "https://dquafkblzhzomjngnwkc.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxdWFma2Jsemh6b21qbmdud2tjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMTY1NDAsImV4cCI6MjEwMjc5MjU0MH0.XkJ69n14ywSYEs4a1dq0j6JKa91vBHYve9po96sjBvE";
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const STATUS_LABELS = {
     new: "New", reviewing: "Reviewing", proposal_sent: "Proposal sent", won: "Won", declined: "Declined",
@@ -311,46 +314,73 @@ table.apps .muted-cell { color: var(--muted); font-size: 0.82rem; }
 
   let apps = [];
   let activeId = null;
+  let realtimeChannel = null;
 
-  /* ---------------- storage ---------------- */
-  function loadApplications() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-    catch { return []; }
+  /* ---------------- data layer (Supabase) ---------------- */
+  function fromRow(row) {
+    return {
+      id: row.id, company: row.company, name: row.name, email: row.email,
+      size: row.size, industry: row.industry, message: row.message,
+      submittedAt: row.submitted_at, slaDueAt: row.sla_due_at,
+      status: row.status, notes: row.notes || "",
+    };
   }
-  function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(apps)); }
+  function toRow(app) {
+    return {
+      id: app.id, company: app.company, name: app.name, email: app.email,
+      size: app.size, industry: app.industry, message: app.message,
+      submitted_at: app.submittedAt, sla_due_at: app.slaDueAt,
+      status: app.status, notes: app.notes || "",
+    };
+  }
+  async function loadApplications() {
+    const { data, error } = await db.from("applications").select("*").order("submitted_at", { ascending: false });
+    if (error) { console.error(error); return []; }
+    return data.map(fromRow);
+  }
 
   /* ---------------- auth ---------------- */
-  async function sha256Hex(text) {
-    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-    return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
-  }
-  function showDashboard() {
+  async function showDashboard() {
     $("login-screen").style.display = "none";
     $("dashboard").style.display = "block";
     $("logout-btn").style.display = "inline-block";
-    apps = loadApplications();
+    apps = await loadApplications();
     render();
+    wireRealtime();
   }
-  function wireLogin() {
-    if (sessionStorage.getItem(AUTH_KEY) === "1") { showDashboard(); return; }
+  function wireRealtime() {
+    if (realtimeChannel) return;
+    realtimeChannel = db.channel("applications-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "applications" }, async () => {
+        apps = await loadApplications();
+        render();
+      })
+      .subscribe();
+  }
+  async function wireLogin() {
     $("login-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const input = $("pass");
-      const hash = await sha256Hex(input.value);
-      if (hash === PASS_HASH) {
-        sessionStorage.setItem(AUTH_KEY, "1");
+      const email = $("email").value.trim();
+      const password = $("pass").value;
+      const { error } = await db.auth.signInWithPassword({ email, password });
+      if (!error) {
         $("login-error").textContent = "";
+        $("pass").classList.remove("invalid");
         showDashboard();
       } else {
-        input.classList.add("invalid");
-        $("login-error").textContent = "That passphrase doesn't match.";
+        $("pass").classList.add("invalid");
+        $("login-error").textContent = "Sign-in failed — check your email and password.";
       }
     });
     $("pass").addEventListener("input", () => { $("pass").classList.remove("invalid"); });
-    $("logout-btn").addEventListener("click", () => {
-      sessionStorage.removeItem(AUTH_KEY);
+    $("logout-btn").addEventListener("click", async () => {
+      if (realtimeChannel) { db.removeChannel(realtimeChannel); realtimeChannel = null; }
+      await db.auth.signOut();
       location.reload();
     });
+
+    const { data: { session } } = await db.auth.getSession();
+    if (session) showDashboard();
   }
 
   /* ---------------- helpers ---------------- */
@@ -455,10 +485,11 @@ table.apps .muted-cell { color: var(--muted); font-size: 0.82rem; }
     $("drawer-close").addEventListener("click", closeDrawer);
     $("drawer-status").addEventListener("change", (e) => updateActive({ status: e.target.value }));
     $("drawer-notes").addEventListener("blur", (e) => updateActive({ notes: e.target.value }));
-    $("drawer-delete").addEventListener("click", () => {
+    $("drawer-delete").addEventListener("click", async () => {
       if (!confirm(`Delete the application from ${a.company}? This can't be undone.`)) return;
+      const { error } = await db.from("applications").delete().eq("id", id);
+      if (error) { alert("Couldn't delete — please try again."); return; }
       apps = apps.filter((x) => x.id !== id);
-      persist();
       closeDrawer();
       render();
     });
@@ -471,13 +502,18 @@ table.apps .muted-cell { color: var(--muted); font-size: 0.82rem; }
     $("drawer").classList.remove("open");
     activeId = null;
   }
-  function updateActive(patch) {
+  async function updateActive(patch) {
     const idx = apps.findIndex((x) => x.id === activeId);
     if (idx === -1) return;
-    apps[idx] = { ...apps[idx], ...patch };
-    persist();
-    render();
+    const id = activeId;
+    const { error } = await db.from("applications").update(patch).eq("id", id);
     const flash = $("saved-flash");
+    if (error) {
+      if (flash) flash.textContent = "Couldn't save — try again.";
+      return;
+    }
+    apps[idx] = { ...apps[idx], ...patch };
+    render();
     if (flash) { flash.textContent = "Saved."; setTimeout(() => { if (flash) flash.textContent = ""; }, 1500); }
   }
 
@@ -489,18 +525,18 @@ table.apps .muted-cell { color: var(--muted); font-size: 0.82rem; }
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
         try {
           const data = JSON.parse(reader.result);
-          const incoming = Array.isArray(data) ? data : [data];
-          const byId = new Map(apps.map((a) => [a.id, a]));
-          incoming.forEach((a) => { if (a && a.id) byId.set(a.id, { ...byId.get(a.id), ...a }); });
-          apps = Array.from(byId.values()).sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
-          persist();
+          const incoming = (Array.isArray(data) ? data : [data]).filter((a) => a && a.id);
+          const rows = incoming.map(toRow);
+          const { error } = await db.from("applications").upsert(rows, { onConflict: "id" });
+          if (error) throw error;
+          apps = await loadApplications();
           render();
           alert(`Imported ${incoming.length} application(s). Total on file: ${apps.length}.`);
         } catch {
-          alert("That file isn't valid JSON from Bridgeline's application form or admin export.");
+          alert("That file isn't valid JSON from Bridgeline's application form or admin export, or the upload failed.");
         }
         e.target.value = "";
       };
