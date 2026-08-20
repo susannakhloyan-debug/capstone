@@ -35,14 +35,14 @@
 
 :root {
   color-scheme: light;
-  --paper: oklch(97% 0.005 240);
-  --paper-raised: oklch(99.2% 0.003 240);
-  --paper-sunken: oklch(93% 0.008 240);
+  --surface: oklch(97% 0.005 240);
+  --surface-raised: oklch(99.2% 0.003 240);
+  --surface-sunken: oklch(93% 0.008 240);
   --line: oklch(87% 0.01 245);
   --line-strong: oklch(74% 0.014 245);
   --ink: oklch(21% 0.015 250);
   --ink-soft: oklch(38% 0.015 250);
-  --muted: oklch(55% 0.012 248);
+  --muted: oklch(52% 0.012 248);
   --accent: oklch(56% 0.15 60);
   --accent-ink: oklch(36% 0.12 52);
   --accent-soft: oklch(93% 0.05 68);
@@ -57,9 +57,9 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --paper: oklch(15% 0.014 250);
-    --paper-raised: oklch(19.5% 0.016 250);
-    --paper-sunken: oklch(12% 0.012 250);
+    --surface: oklch(15% 0.014 250);
+    --surface-raised: oklch(19.5% 0.016 250);
+    --surface-sunken: oklch(12% 0.012 250);
     --line: oklch(30% 0.018 250);
     --line-strong: oklch(41% 0.02 250);
     --ink: oklch(93% 0.008 250);
@@ -79,9 +79,9 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper: oklch(15% 0.014 250);
-  --paper-raised: oklch(19.5% 0.016 250);
-  --paper-sunken: oklch(12% 0.012 250);
+  --surface: oklch(15% 0.014 250);
+  --surface-raised: oklch(19.5% 0.016 250);
+  --surface-sunken: oklch(12% 0.012 250);
   --line: oklch(30% 0.018 250);
   --line-strong: oklch(41% 0.02 250);
   --ink: oklch(93% 0.008 250);
@@ -100,14 +100,14 @@
 }
 :root[data-theme="light"] {
   color-scheme: light;
-  --paper: oklch(97% 0.005 240);
-  --paper-raised: oklch(99.2% 0.003 240);
-  --paper-sunken: oklch(93% 0.008 240);
+  --surface: oklch(97% 0.005 240);
+  --surface-raised: oklch(99.2% 0.003 240);
+  --surface-sunken: oklch(93% 0.008 240);
   --line: oklch(87% 0.01 245);
   --line-strong: oklch(74% 0.014 245);
   --ink: oklch(21% 0.015 250);
   --ink-soft: oklch(38% 0.015 250);
-  --muted: oklch(55% 0.012 248);
+  --muted: oklch(52% 0.012 248);
   --accent: oklch(56% 0.15 60);
   --accent-ink: oklch(36% 0.12 52);
   --accent-soft: oklch(93% 0.05 68);
@@ -124,7 +124,7 @@
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {
-  margin: 0; background: var(--paper); color: var(--ink);
+  margin: 0; background: var(--surface); color: var(--ink);
   font-family: 'Karla Baseline', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased;
 }
@@ -146,7 +146,7 @@ mark {
 /* ---------------- nav ---------------- */
 .topnav {
   position: sticky; top: 0; z-index: 40;
-  background: color-mix(in oklch, var(--paper) 90%, transparent);
+  background: color-mix(in oklch, var(--surface) 90%, transparent);
   border-bottom: 1px solid var(--line); backdrop-filter: saturate(160%) blur(8px);
 }
 .topnav-inner { max-width: 1120px; margin: 0 auto; padding: 14px clamp(20px, 5vw, 48px); display: flex; align-items: center; gap: 28px; }
@@ -158,7 +158,7 @@ mark {
 @media (max-width: 760px) { .navlinks { display: none; } }
 .nav-cta {
   font-family: 'Bitter Baseline', serif; font-weight: 700; font-size: 0.86rem; white-space: nowrap;
-  color: var(--paper-raised); background: var(--ink); border: 1px solid var(--ink);
+  color: var(--surface-raised); background: var(--ink); border: 1px solid var(--ink);
   padding: 9px 16px; border-radius: 6px; text-decoration: none;
 }
 .nav-cta:hover { background: var(--ink-soft); }
@@ -180,7 +180,7 @@ mark {
 .hero .cta-row { display: flex; align-items: center; gap: 18px; margin: 32px 0 0; flex-wrap: wrap; }
 .btn-primary {
   display: inline-flex; align-items: center; gap: 8px; font-family: 'Bitter Baseline', serif; font-weight: 700;
-  font-size: 0.95rem; color: var(--paper-raised); background: var(--ink); border: 1px solid var(--ink);
+  font-size: 0.95rem; color: var(--surface-raised); background: var(--ink); border: 1px solid var(--ink);
   padding: 13px 22px; border-radius: 7px; text-decoration: none; box-shadow: var(--shadow);
 }
 .btn-primary:hover { background: var(--ink-soft); }
@@ -215,7 +215,7 @@ mark {
 .services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
 @media (max-width: 760px) { .services-grid { grid-template-columns: 1fr; } }
 .service-card {
-  background: var(--paper-raised); border: 1px solid var(--line); border-radius: 10px; padding: 24px 26px;
+  background: var(--surface-raised); border: 1px solid var(--line); border-radius: 10px; padding: 24px 26px;
 }
 .service-card .num { font-size: 0.76rem; color: var(--muted); margin-bottom: 10px; }
 .service-card h3 { font-size: 1.18rem; font-weight: 700; margin-bottom: 10px; }
@@ -239,15 +239,7 @@ mark {
 .approach-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
 @media (max-width: 900px) { .approach-row { grid-template-columns: repeat(2, 1fr); gap: 28px 24px; } }
 @media (max-width: 560px) { .approach-row { grid-template-columns: 1fr; gap: 28px; } }
-.approach-step { padding: 0 20px 0 0; position: relative; }
-.approach-row > .approach-step:not(:last-child)::after {
-  content: ""; position: absolute; top: 22px; right: 0; width: 24px; height: 1px; background: var(--line-strong);
-}
-@media (max-width: 900px) { .approach-row > .approach-step:not(:last-child)::after { display: none; } }
-.approach-step .n {
-  width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--ink); display: flex; align-items: center;
-  justify-content: center; font-family: 'Bitter Baseline', serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 18px;
-}
+.approach-step { padding: 14px 20px 0 0; border-top: 2px solid var(--accent); }
 .approach-step h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
 .approach-step p { color: var(--ink-soft); font-size: 0.94rem; margin: 0; }
 
@@ -255,7 +247,7 @@ mark {
 .case-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 @media (max-width: 900px) { .case-grid { grid-template-columns: 1fr; } }
 .case-card {
-  display: flex; flex-direction: column; background: var(--paper-raised); border: 1px solid var(--line);
+  display: flex; flex-direction: column; background: var(--surface-raised); border: 1px solid var(--line);
   border-radius: 10px; padding: 22px 24px; box-shadow: var(--shadow);
 }
 .case-card .kind { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent-ink); margin-bottom: 10px; }
@@ -268,7 +260,7 @@ mark {
 
 /* ---------------- funnel stat strip ---------------- */
 .funnel-note {
-  margin-top: 24px; border: 1px dashed var(--line-strong); border-radius: 10px; background: var(--paper-raised);
+  margin-top: 24px; border: 1px dashed var(--line-strong); border-radius: 10px; background: var(--surface-raised);
   padding: 18px 22px; font-size: 0.92rem; color: var(--ink-soft);
 }
 .funnel-note b { color: var(--ink); }
@@ -283,7 +275,7 @@ mark {
 .contact-info .info-row dd { margin: 0; color: var(--ink-soft); }
 
 .contact-form {
-  background: var(--paper-raised); border: 1px solid var(--line); border-radius: 12px; padding: 28px 28px 26px;
+  background: var(--surface-raised); border: 1px solid var(--line); border-radius: 12px; padding: 28px 28px 26px;
   box-shadow: var(--shadow);
 }
 .form-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
@@ -292,15 +284,15 @@ mark {
 .form-row label { font-size: 0.82rem; font-weight: 700; color: var(--ink-soft); }
 .form-row .req { color: var(--danger); }
 .form-row input, .form-row select, .form-row textarea {
-  font: inherit; font-size: 0.95rem; padding: 11px 13px; border-radius: 7px; border: 1px solid var(--line);
-  background: var(--paper); color: var(--ink); width: 100%;
+  font: inherit; font-size: 1rem; padding: 11px 13px; border-radius: 7px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); width: 100%;
 }
 .form-row input.invalid, .form-row select.invalid, .form-row textarea.invalid { border-color: var(--danger); background: var(--danger-soft); }
 .form-row textarea { min-height: 90px; resize: vertical; }
 .form-error { font-size: 0.78rem; color: var(--danger); min-height: 1em; }
 .form-submit {
   width: 100%; font-family: 'Bitter Baseline', serif; font-weight: 700; font-size: 0.98rem;
-  color: var(--paper-raised); background: var(--accent-ink); border: 1px solid var(--accent-ink);
+  color: var(--surface-raised); background: var(--accent-ink); border: 1px solid var(--accent-ink);
   padding: 13px 20px; border-radius: 7px; margin-top: 4px;
 }
 .form-submit:hover { opacity: 0.9; }
@@ -330,7 +322,7 @@ footer .foot-links a { color: var(--muted); text-decoration: none; border-bottom
 footer .foot-links a:hover { color: var(--ink-soft); }
 
 /* ---------------- receipt ---------------- */
-.receipt-id { font-family: 'JetBrains Mono Baseline', monospace; background: var(--paper-sunken); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; margin: 14px 0; font-size: 0.86rem; }
+.receipt-id { font-family: 'JetBrains Mono Baseline', monospace; background: var(--surface-sunken); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; margin: 14px 0; font-size: 0.86rem; }
 .form-success a.receipt-dl { display: inline-block; margin-top: 4px; font-size: 0.86rem; font-weight: 700; color: var(--accent-ink); text-decoration: none; border-bottom: 1px solid var(--accent-ink); }
 .form-success a.receipt-dl:hover { color: var(--ink); border-color: var(--ink); }
 </style>
@@ -368,28 +360,23 @@ footer .foot-links a:hover { color: var(--ink-soft); }
 
   <section class="section reveal" id="how-it-works">
     <div class="section-head">
-      <p class="section-eyebrow">HOW IT WORKS</p>
       <h2>Four steps, one SLA</h2>
       <p>No sales calls, no open-ended scoping. An application starts a five-day clock, and the clock doesn't reset.</p>
     </div>
     <div class="approach-row">
       <div class="approach-step">
-        <div class="n mono">01</div>
         <h3>Apply</h3>
         <p>A short, structured application — the business problem, not a sales pitch. Reviewed by the team, not a queue.</p>
       </div>
       <div class="approach-step">
-        <div class="n mono">02</div>
         <h3>Scope <span class="mono" style="font-size:0.7em;color:var(--muted);">5-day SLA</span></h3>
         <p>The team turns the application into a concrete, priced proposal within five business days — no exceptions.</p>
       </div>
       <div class="approach-step">
-        <div class="n mono">03</div>
         <h3>Deliver</h3>
         <p>A four-person team — Business Analyst, PM, Designer, and Tech Feasibility Lead — executes against the scoped proposal.</p>
       </div>
       <div class="approach-step">
-        <div class="n mono">04</div>
         <h3>Pay on completion</h3>
         <p>Payment is due once delivery is complete, not before. The risk sits with Bridgeline until the work is done.</p>
       </div>
@@ -398,13 +385,12 @@ footer .foot-links a:hover { color: var(--ink-soft); }
 
   <section class="section reveal" id="team">
     <div class="section-head">
-      <p class="section-eyebrow">THE TEAM</p>
       <h2>Four roles, one proposal</h2>
       <p>Every scoped proposal passes through the same four seats — not a rotating cast of subcontractors.</p>
     </div>
     <div class="services-grid">
       <div class="service-card">
-        <p class="num mono">01 · Business Analyst</p>
+        <p class="num mono">Business Analyst</p>
         <h3>Turns the ask into a spec</h3>
         <ul>
           <li>Discovery that surfaces what's known, assumed, and still missing</li>
@@ -413,7 +399,7 @@ footer .foot-links a:hover { color: var(--ink-soft); }
         </ul>
       </div>
       <div class="service-card">
-        <p class="num mono">02 · Project Manager</p>
+        <p class="num mono">Project Manager</p>
         <h3>Owns the five-day clock</h3>
         <ul>
           <li>Keeps scoping on schedule against the SLA — every application, every time</li>
@@ -422,7 +408,7 @@ footer .foot-links a:hover { color: var(--ink-soft); }
         </ul>
       </div>
       <div class="service-card">
-        <p class="num mono">03 · Designer</p>
+        <p class="num mono">Designer</p>
         <h3>Makes the proposal buildable</h3>
         <ul>
           <li>Wireframe and flow specs ready for handoff</li>
@@ -431,7 +417,7 @@ footer .foot-links a:hover { color: var(--ink-soft); }
         </ul>
       </div>
       <div class="service-card">
-        <p class="num mono">04 · Tech Feasibility Lead</p>
+        <p class="num mono">Tech Feasibility Lead</p>
         <h3>Reality-checks the proposal</h3>
         <ul>
           <li>Flags what's actually buildable in scope and budget</li>
@@ -451,7 +437,6 @@ footer .foot-links a:hover { color: var(--ink-soft); }
 
   <section class="section reveal" id="work">
     <div class="section-head">
-      <p class="section-eyebrow">SELECTED WORK</p>
       <h2>The tooling behind the scoping process</h2>
       <p>Three tools that inform how Bridgeline's team turns an application into a scoped proposal — each one a working artifact, not a case-study mockup. View any of them directly.</p>
     </div>
@@ -506,7 +491,7 @@ footer .foot-links a:hover { color: var(--ink-soft); }
           <div class="form-row two">
             <div>
               <label for="f-email">Email <span class="req">*</span></label>
-              <input type="text" id="f-email" autocomplete="email">
+              <input type="email" id="f-email" autocomplete="email">
             </div>
             <div>
               <label for="f-size">Company size <span class="opt" style="font-weight:400;color:var(--muted);">optional</span></label>
