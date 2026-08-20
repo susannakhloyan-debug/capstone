@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Staff dashboard — Bridgeline</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌉</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700&family=Karla:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --paper: oklch(97% 0.005 240);
+  --paper-raised: oklch(99.2% 0.003 240);
+  --paper-sunken: oklch(93% 0.008 240);
+  --line: oklch(87% 0.01 245);
+  --line-strong: oklch(74% 0.014 245);
+  --ink: oklch(21% 0.015 250);
+  --ink-soft: oklch(38% 0.015 250);
+  --muted: oklch(55% 0.012 248);
+  --accent: oklch(56% 0.15 60);
+  --accent-ink: oklch(36% 0.12 52);
+  --accent-soft: oklch(93% 0.05 68);
+  --ok: oklch(42% 0.12 152);
+  --ok-soft: oklch(93% 0.045 152);
+  --warn: oklch(52% 0.14 75);
+  --warn-soft: oklch(93% 0.06 80);
+  --danger: oklch(48% 0.19 25);
+  --danger-soft: oklch(93% 0.05 25);
+  --shadow: 0 1px 2px oklch(21% 0.015 250 / 0.05), 0 14px 30px -18px oklch(21% 0.015 250 / 0.32);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: oklch(15% 0.014 250);
+    --paper-raised: oklch(19.5% 0.016 250);
+    --paper-sunken: oklch(12% 0.012 250);
+    --line: oklch(30% 0.018 250);
+    --line-strong: oklch(41% 0.02 250);
+    --ink: oklch(93% 0.008 250);
+    --ink-soft: oklch(76% 0.012 250);
+    --muted: oklch(60% 0.014 250);
+    --accent: oklch(74% 0.135 65);
+    --accent-ink: oklch(84% 0.11 65);
+    --accent-soft: oklch(28% 0.06 68);
+    --ok: oklch(75% 0.14 152);
+    --ok-soft: oklch(24% 0.05 152);
+    --warn: oklch(80% 0.13 80);
+    --warn-soft: oklch(28% 0.06 80);
+    --danger: oklch(75% 0.15 25);
+    --danger-soft: oklch(26% 0.06 25);
+    --shadow: 0 1px 2px oklch(0% 0 0 / 0.4), 0 14px 30px -18px oklch(0% 0 0 / 0.7);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: oklch(15% 0.014 250);
+  --paper-raised: oklch(19.5% 0.016 250);
+  --paper-sunken: oklch(12% 0.012 250);
+  --line: oklch(30% 0.018 250);
+  --line-strong: oklch(41% 0.02 250);
+  --ink: oklch(93% 0.008 250);
+  --ink-soft: oklch(76% 0.012 250);
+  --muted: oklch(60% 0.014 250);
+  --accent: oklch(74% 0.135 65);
+  --accent-ink: oklch(84% 0.11 65);
+  --accent-soft: oklch(28% 0.06 68);
+  --ok: oklch(75% 0.14 152);
+  --ok-soft: oklch(24% 0.05 152);
+  --warn: oklch(80% 0.13 80);
+  --warn-soft: oklch(28% 0.06 80);
+  --danger: oklch(75% 0.15 25);
+  --danger-soft: oklch(26% 0.06 25);
+  --shadow: 0 1px 2px oklch(0% 0 0 / 0.4), 0 14px 30px -18px oklch(0% 0 0 / 0.7);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: 'Karla', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+}
+.disp { font-family: 'Bitter', Georgia, serif; }
+.mono { font-family: 'JetBrains Mono', "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+h1, h2, h3 { font-family: 'Bitter', Georgia, serif; margin: 0; }
+a { color: inherit; }
+button, input, select, textarea { font-family: inherit; }
+:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft), 0 0 0 1.5px var(--accent); border-radius: 5px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 clamp(18px, 4vw, 40px); }
+
+/* nav */
+.topnav {
+  position: sticky; top: 0; z-index: 40; background: color-mix(in oklch, var(--paper) 90%, transparent);
+  border-bottom: 1px solid var(--line); backdrop-filter: saturate(160%) blur(8px);
+}
+.topnav-inner { max-width: 1180px; margin: 0 auto; padding: 14px clamp(18px, 4vw, 40px); display: flex; align-items: center; gap: 20px; }
+.wordmark { font-family: 'Bitter', serif; font-weight: 700; font-size: 1.05rem; }
+.wordmark .dot { color: var(--accent); }
+.wordmark .tag { font-family: 'Karla', sans-serif; font-weight: 400; color: var(--muted); font-size: 0.78rem; margin-left: 8px; }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 16px; font-size: 0.86rem; }
+.nav-right a { text-decoration: none; color: var(--ink-soft); }
+.nav-right a:hover { color: var(--ink); }
+
+.btn { font-family: 'Bitter', serif; font-weight: 700; font-size: 0.86rem; border-radius: 7px; padding: 9px 16px; cursor: pointer; border: 1px solid var(--ink); background: var(--ink); color: var(--paper-raised); }
+.btn:hover { background: var(--ink-soft); }
+.btn:active { transform: scale(0.97); }
+.btn.secondary { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+.btn.secondary:hover { border-color: var(--ink); }
+.btn.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+.btn.danger:hover { background: var(--danger-soft); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn.small { padding: 6px 12px; font-size: 0.78rem; }
+
+/* login */
+.login-shell { min-height: calc(100vh - 62px); display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+.login-card { width: 100%; max-width: 380px; background: var(--paper-raised); border: 1px solid var(--line); border-radius: 12px; padding: 32px 30px; box-shadow: var(--shadow); }
+.login-card h1 { font-size: 1.4rem; margin-bottom: 8px; }
+.login-card p.lede { color: var(--ink-soft); font-size: 0.9rem; margin: 0 0 22px; }
+.login-card label { font-size: 0.82rem; font-weight: 700; color: var(--ink-soft); display: block; margin-bottom: 6px; }
+.login-card input { width: 100%; font: inherit; font-size: 0.95rem; padding: 11px 13px; border-radius: 7px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+.login-card input.invalid { border-color: var(--danger); background: var(--danger-soft); }
+.login-card .btn { width: 100%; margin-top: 16px; padding: 12px; }
+.login-error { color: var(--danger); font-size: 0.82rem; min-height: 1.2em; margin-top: 10px; }
+.login-hint { margin-top: 18px; font-size: 0.76rem; color: var(--muted); border-top: 1px dashed var(--line-strong); padding-top: 14px; }
+
+/* dashboard */
+#dashboard { display: none; padding: 30px 0 70px; }
+.dash-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+.dash-head h1 { font-size: 1.7rem; }
+.dash-head p { color: var(--muted); font-size: 0.86rem; margin: 4px 0 0; }
+
+.stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 28px; }
+@media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .stats-row { grid-template-columns: 1fr; } }
+.stat-card { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+.stat-card .v { font-family: 'Bitter', serif; font-weight: 700; font-size: 1.7rem; }
+.stat-card .l { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.stat-card.warn .v { color: var(--danger); }
+
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
+.toolbar input[type="search"], .toolbar select {
+  font: inherit; font-size: 0.88rem; padding: 9px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--paper-raised); color: var(--ink);
+}
+.toolbar input[type="search"] { flex: 1 1 220px; min-width: 180px; }
+.toolbar .spacer { flex: 1; }
+.toolbar .file-btn { position: relative; overflow: hidden; }
+.toolbar .file-btn input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.table-wrap { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); }
+table.apps { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+table.apps th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); padding: 12px 16px; border-bottom: 1px solid var(--line); }
+table.apps td { padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.apps tbody tr:last-child td { border-bottom: none; }
+table.apps tbody tr:hover { background: var(--paper-sunken); }
+table.apps .co { font-weight: 700; }
+table.apps .muted-cell { color: var(--muted); font-size: 0.82rem; }
+.empty-state { padding: 60px 20px; text-align: center; color: var(--muted); }
+.empty-state h3 { color: var(--ink-soft); margin-bottom: 6px; }
+
+.badge { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.badge.status-new { background: var(--accent-soft); color: var(--accent-ink); }
+.badge.status-reviewing { background: var(--warn-soft); color: var(--warn); }
+.badge.status-proposal_sent { background: var(--ok-soft); color: var(--ok); }
+.badge.status-won { background: var(--ok); color: var(--paper-raised); }
+.badge.status-declined { background: var(--danger-soft); color: var(--danger); }
+.badge.sla-ok { background: var(--ok-soft); color: var(--ok); }
+.badge.sla-overdue { background: var(--danger-soft); color: var(--danger); }
+.badge.sla-none { background: var(--paper-sunken); color: var(--muted); }
+
+@media (max-width: 860px) {
+  table.apps thead { display: none; }
+  table.apps, table.apps tbody, table.apps tr, table.apps td { display: block; width: 100%; }
+  table.apps tr { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  table.apps td { padding: 3px 0; border: none; }
+  table.apps td::before { content: attr(data-label); display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-top: 8px; }
+  table.apps td:first-child::before { margin-top: 0; }
+}
+
+/* drawer */
+.overlay { position: fixed; inset: 0; background: oklch(10% 0.01 250 / 0.45); z-index: 60; display: none; }
+.overlay.open { display: block; }
+.drawer {
+  position: fixed; top: 0; right: 0; height: 100%; width: min(480px, 100%); background: var(--paper-raised);
+  border-left: 1px solid var(--line); z-index: 61; transform: translateX(100%); transition: transform 260ms cubic-bezier(0.16,1,0.3,1);
+  overflow-y: auto; box-shadow: -8px 0 30px oklch(10% 0.01 250 / 0.15);
+}
+.drawer.open { transform: translateX(0); }
+.drawer-inner { padding: 26px 26px 40px; }
+.drawer-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.drawer-head h2 { font-size: 1.25rem; }
+.drawer-close { background: none; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 4px; }
+.drawer-close:hover { color: var(--ink); }
+.drawer-sub { color: var(--muted); font-size: 0.82rem; margin-bottom: 20px; }
+.drawer-field { margin-bottom: 16px; }
+.drawer-field label { display: block; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 4px; }
+.drawer-field .val { font-size: 0.95rem; }
+.drawer-field .val.msg { white-space: pre-wrap; background: var(--paper-sunken); border-radius: 7px; padding: 12px 14px; font-size: 0.9rem; color: var(--ink-soft); }
+.drawer-field select, .drawer-field textarea {
+  width: 100%; font: inherit; font-size: 0.9rem; padding: 9px 11px; border-radius: 7px; border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+}
+.drawer-field textarea { min-height: 80px; resize: vertical; }
+.drawer-actions { display: flex; gap: 10px; margin-top: 24px; }
+.saved-flash { font-size: 0.78rem; color: var(--ok); height: 1em; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <span class="wordmark">Bridge<span class="dot">·</span>line<span class="tag">Staff</span></span>
+    <div class="nav-right">
+      <a href="index.html">← Back to site</a>
+      <button class="btn secondary small" id="logout-btn" style="display:none;">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div id="login-screen" class="login-shell">
+  <div class="login-card">
+    <h1 class="disp">Staff sign-in</h1>
+    <p class="lede">Enter the shared passphrase to review pilot applications.</p>
+    <form id="login-form">
+      <label for="pass">Passphrase</label>
+      <input type="password" id="pass" autocomplete="current-password">
+      <p class="login-error" id="login-error"></p>
+      <button type="submit" class="btn">Sign in</button>
+    </form>
+    <p class="login-hint">This is a client-side gate for a static site — it keeps casual visitors out, not a substitute for real authentication. Default passphrase: <code>bridgeline2026</code> (change the hash in this file's script to rotate it).</p>
+  </div>
+</div>
+
+<div id="dashboard">
+  <div class="wrap">
+    <div class="dash-head">
+      <div>
+        <h1>Pilot applications</h1>
+        <p>Every submission from the public application form, in one place.</p>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <label class="btn secondary file-btn">Import JSON
+          <input type="file" id="import-input" accept="application/json">
+        </label>
+        <button class="btn secondary" id="export-json-btn">Export JSON</button>
+        <button class="btn" id="export-csv-btn">Export CSV</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="v mono" id="stat-total">0</div><div class="l">Total applications</div></div>
+      <div class="stat-card"><div class="v mono" id="stat-new">0</div><div class="l">Awaiting review</div></div>
+      <div class="stat-card"><div class="v mono" id="stat-within">0</div><div class="l">Within SLA</div></div>
+      <div class="stat-card warn"><div class="v mono" id="stat-overdue">0</div><div class="l">Overdue</div></div>
+      <div class="stat-card"><div class="v mono" id="stat-cohort">0 / 8</div><div class="l">Cohort filled</div></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="search" id="search-input" placeholder="Search company, contact, email, industry…">
+      <select id="status-filter">
+        <option value="">All statuses</option>
+        <option value="new">New</option>
+        <option value="reviewing">Reviewing</option>
+        <option value="proposal_sent">Proposal sent</option>
+        <option value="won">Won</option>
+        <option value="declined">Declined</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table class="apps" id="apps-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Contact</th>
+            <th>Industry</th>
+            <th>Submitted</th>
+            <th>SLA</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="apps-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <h3 class="disp">No applications yet</h3>
+        <p>Once someone applies on the public site, or you import a JSON export, they'll show up here.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-inner" id="drawer-content"></div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const STORAGE_KEY = "bridgeline_applications";
+  const AUTH_KEY = "bridgeline_admin_auth";
+  const COHORT_SIZE = 8;
+  const PASS_HASH = "76e013dcbb0ce90d48e622b3ad5bc615a0e37aaaca9df9640d8d21b868ca3f6a"; // sha256("bridgeline2026")
+
+  const STATUS_LABELS = {
+    new: "New", reviewing: "Reviewing", proposal_sent: "Proposal sent", won: "Won", declined: "Declined",
+  };
+
+  let apps = [];
+  let activeId = null;
+
+  /* ---------------- storage ---------------- */
+  function loadApplications() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  }
+  function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(apps)); }
+
+  /* ---------------- auth ---------------- */
+  async function sha256Hex(text) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  function showDashboard() {
+    $("login-screen").style.display = "none";
+    $("dashboard").style.display = "block";
+    $("logout-btn").style.display = "inline-block";
+    apps = loadApplications();
+    render();
+  }
+  function wireLogin() {
+    if (sessionStorage.getItem(AUTH_KEY) === "1") { showDashboard(); return; }
+    $("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = $("pass");
+      const hash = await sha256Hex(input.value);
+      if (hash === PASS_HASH) {
+        sessionStorage.setItem(AUTH_KEY, "1");
+        $("login-error").textContent = "";
+        showDashboard();
+      } else {
+        input.classList.add("invalid");
+        $("login-error").textContent = "That passphrase doesn't match.";
+      }
+    });
+    $("pass").addEventListener("input", () => { $("pass").classList.remove("invalid"); });
+    $("logout-btn").addEventListener("click", () => {
+      sessionStorage.removeItem(AUTH_KEY);
+      location.reload();
+    });
+  }
+
+  /* ---------------- helpers ---------------- */
+  function fmtDate(iso) { return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }); }
+  function isResolved(status) { return status === "proposal_sent" || status === "won" || status === "declined"; }
+  function slaInfo(app) {
+    if (isResolved(app.status)) return { label: "—", cls: "sla-none" };
+    const due = new Date(app.slaDueAt);
+    const overdue = Date.now() > due.getTime();
+    return overdue
+      ? { label: "Overdue", cls: "sla-overdue" }
+      : { label: `Due ${fmtDate(app.slaDueAt)}`, cls: "sla-ok" };
+  }
+  function escapeHtml(s) {
+    return String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  function escapeCsv(s) {
+    const v = String(s ?? "");
+    return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+  }
+
+  /* ---------------- render ---------------- */
+  function currentFiltered() {
+    const q = $("search-input").value.trim().toLowerCase();
+    const status = $("status-filter").value;
+    return apps.filter((a) => {
+      if (status && a.status !== status) return false;
+      if (!q) return true;
+      return [a.company, a.name, a.email, a.industry].some((f) => (f || "").toLowerCase().includes(q));
+    });
+  }
+
+  function render() {
+    const filtered = currentFiltered();
+    const tbody = $("apps-tbody");
+    tbody.innerHTML = "";
+    $("empty-state").style.display = filtered.length ? "none" : "block";
+
+    filtered.forEach((a) => {
+      const sla = slaInfo(a);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td data-label="Company"><span class="co">${escapeHtml(a.company)}</span></td>
+        <td data-label="Contact">${escapeHtml(a.name)}<br><span class="muted-cell">${escapeHtml(a.email)}</span></td>
+        <td data-label="Industry">${escapeHtml(a.industry) || "<span class=\"muted-cell\">—</span>"}</td>
+        <td data-label="Submitted" class="mono muted-cell">${fmtDate(a.submittedAt)}</td>
+        <td data-label="SLA"><span class="badge ${sla.cls}">${sla.label}</span></td>
+        <td data-label="Status"><span class="badge status-${a.status}">${STATUS_LABELS[a.status] || a.status}</span></td>
+        <td data-label=""><button class="btn secondary small" data-open="${a.id}">Review</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll("[data-open]").forEach((btn) => {
+      btn.addEventListener("click", () => openDrawer(btn.getAttribute("data-open")));
+    });
+
+    $("stat-total").textContent = apps.length;
+    $("stat-new").textContent = apps.filter((a) => a.status === "new").length;
+    $("stat-within").textContent = apps.filter((a) => !isResolved(a.status) && Date.now() <= new Date(a.slaDueAt).getTime()).length;
+    $("stat-overdue").textContent = apps.filter((a) => !isResolved(a.status) && Date.now() > new Date(a.slaDueAt).getTime()).length;
+    $("stat-cohort").textContent = `${apps.filter((a) => a.status === "won").length} / ${COHORT_SIZE}`;
+  }
+
+  /* ---------------- drawer ---------------- */
+  function openDrawer(id) {
+    activeId = id;
+    const a = apps.find((x) => x.id === id);
+    if (!a) return;
+    const sla = slaInfo(a);
+    $("drawer-content").innerHTML = `
+      <div class="drawer-head">
+        <div>
+          <h2 class="disp">${escapeHtml(a.company)}</h2>
+        </div>
+        <button class="drawer-close" id="drawer-close" aria-label="Close">✕</button>
+      </div>
+      <p class="drawer-sub">ID ${escapeHtml(a.id)} · submitted ${fmtDate(a.submittedAt)} · <span class="badge ${sla.cls}">${sla.label}</span></p>
+
+      <div class="drawer-field"><label>Contact</label><div class="val">${escapeHtml(a.name)} · <a href="mailto:${escapeHtml(a.email)}">${escapeHtml(a.email)}</a></div></div>
+      <div class="drawer-field"><label>Company size</label><div class="val">${escapeHtml(a.size) || "Not specified"}</div></div>
+      <div class="drawer-field"><label>Industry</label><div class="val">${escapeHtml(a.industry) || "Not specified"}</div></div>
+      <div class="drawer-field"><label>Business problem</label><div class="val msg">${escapeHtml(a.message)}</div></div>
+
+      <div class="drawer-field">
+        <label for="drawer-status">Status</label>
+        <select id="drawer-status">
+          ${Object.entries(STATUS_LABELS).map(([v, l]) => `<option value="${v}" ${a.status === v ? "selected" : ""}>${l}</option>`).join("")}
+        </select>
+      </div>
+      <div class="drawer-field">
+        <label for="drawer-notes">Internal notes</label>
+        <textarea id="drawer-notes" placeholder="Scoping notes, follow-ups, blockers…">${escapeHtml(a.notes)}</textarea>
+      </div>
+      <p class="saved-flash" id="saved-flash"></p>
+
+      <div class="drawer-actions">
+        <button class="btn danger small" id="drawer-delete">Delete</button>
+      </div>
+    `;
+
+    $("drawer-close").addEventListener("click", closeDrawer);
+    $("drawer-status").addEventListener("change", (e) => updateActive({ status: e.target.value }));
+    $("drawer-notes").addEventListener("blur", (e) => updateActive({ notes: e.target.value }));
+    $("drawer-delete").addEventListener("click", () => {
+      if (!confirm(`Delete the application from ${a.company}? This can't be undone.`)) return;
+      apps = apps.filter((x) => x.id !== id);
+      persist();
+      closeDrawer();
+      render();
+    });
+
+    $("overlay").classList.add("open");
+    $("drawer").classList.add("open");
+  }
+  function closeDrawer() {
+    $("overlay").classList.remove("open");
+    $("drawer").classList.remove("open");
+    activeId = null;
+  }
+  function updateActive(patch) {
+    const idx = apps.findIndex((x) => x.id === activeId);
+    if (idx === -1) return;
+    apps[idx] = { ...apps[idx], ...patch };
+    persist();
+    render();
+    const flash = $("saved-flash");
+    if (flash) { flash.textContent = "Saved."; setTimeout(() => { if (flash) flash.textContent = ""; }, 1500); }
+  }
+
+  /* ---------------- import / export ---------------- */
+  function wireImportExport() {
+    $("overlay").addEventListener("click", closeDrawer);
+
+    $("import-input").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          const incoming = Array.isArray(data) ? data : [data];
+          const byId = new Map(apps.map((a) => [a.id, a]));
+          incoming.forEach((a) => { if (a && a.id) byId.set(a.id, { ...byId.get(a.id), ...a }); });
+          apps = Array.from(byId.values()).sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+          persist();
+          render();
+          alert(`Imported ${incoming.length} application(s). Total on file: ${apps.length}.`);
+        } catch {
+          alert("That file isn't valid JSON from Bridgeline's application form or admin export.");
+        }
+        e.target.value = "";
+      };
+      reader.readAsText(file);
+    });
+
+    $("export-json-btn").addEventListener("click", () => {
+      downloadBlob(JSON.stringify(apps, null, 2), "application/json", "bridgeline-applications.json");
+    });
+
+    $("export-csv-btn").addEventListener("click", () => {
+      const cols = ["id", "company", "name", "email", "size", "industry", "message", "submittedAt", "slaDueAt", "status", "notes"];
+      const rows = [cols.join(",")].concat(apps.map((a) => cols.map((c) => escapeCsv(a[c])).join(",")));
+      downloadBlob(rows.join("\n"), "text/csv", "bridgeline-applications.csv");
+    });
+  }
+  function downloadBlob(content, type, filename) {
+    const blob = new Blob([content], { type });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  /* ---------------- init ---------------- */
+  function init() {
+    wireLogin();
+    wireImportExport();
+    $("search-input").addEventListener("input", render);
+    $("status-filter").addEventListener("change", render);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
+</body>
+</html>

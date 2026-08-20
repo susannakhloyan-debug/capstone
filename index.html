@@ -1,4 +1,11 @@
-<title>Bridgeline</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bridgeline — Business analysis consulting for Armenian SMEs</title>
+<meta name="description" content="Bridgeline connects Armenian SMEs to a four-person business analysis team through one structured application. Apply and get a scoped proposal in 5 business days.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌉</text></svg>">
 <style>
 @font-face {
   font-family: 'Bitter Baseline';
@@ -317,7 +324,17 @@ footer {
 footer .foot-brand { font-family: 'Bitter Baseline', serif; font-weight: 700; color: var(--ink-soft); margin-bottom: 4px; }
 footer .foot-right { text-align: right; max-width: 40ch; }
 @media (max-width: 560px) { footer .foot-right { text-align: left; } }
+footer .foot-links { margin-top: 6px; }
+footer .foot-links a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--line-strong); font-size: 0.8rem; }
+footer .foot-links a:hover { color: var(--ink-soft); }
+
+/* ---------------- receipt ---------------- */
+.receipt-id { font-family: 'JetBrains Mono Baseline', monospace; background: var(--paper-sunken); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; margin: 14px 0; font-size: 0.86rem; }
+.form-success a.receipt-dl { display: inline-block; margin-top: 4px; font-size: 0.86rem; font-weight: 700; color: var(--accent-ink); text-decoration: none; border-bottom: 1px solid var(--accent-ink); }
+.form-success a.receipt-dl:hover { color: var(--ink); border-color: var(--ink); }
 </style>
+</head>
+<body>
 
 <nav class="topnav">
   <div class="topnav-inner">
@@ -511,12 +528,14 @@ footer .foot-right { text-align: right; max-width: 40ch; }
           </div>
           <p class="form-error" id="form-error"></p>
           <button type="submit" class="form-submit" id="form-submit">Submit application</button>
-          <p class="form-note">Demo form — this is a capstone-project UI; nothing is sent anywhere.</p>
+          <p class="form-note">Your application is saved for the Bridgeline team's review and the 5-day scoping clock starts now.</p>
         </form>
         <div class="form-success" id="form-success">
           <div class="check">✓</div>
           <h3>Application received</h3>
-          <p>In a live version of Bridgeline, you'd hear back with a scoped proposal within 5 business days. This is a portfolio demo, so that's as far as it goes.</p>
+          <p>The Bridgeline team will review your application and send a scoped proposal within 5 business days.</p>
+          <p class="receipt-id" id="receipt-id"></p>
+          <a class="receipt-dl" id="receipt-dl" download>Download a copy of your application ↓</a>
         </div>
       </div>
     </div>
@@ -525,9 +544,12 @@ footer .foot-right { text-align: right; max-width: 40ch; }
   <footer>
     <div>
       <div class="foot-brand">Bridgeline</div>
-      <div>Business analysis consultation platform for Armenian SMEs — capstone project, Session 8 demo</div>
+      <div>Business analysis consultation platform for Armenian SMEs</div>
     </div>
-    <div class="foot-right">Prepared by Susanna · SME data: ArmBanks, 2026</div>
+    <div class="foot-right">
+      Prepared by Susanna · SME data: ArmBanks, 2026
+      <div class="foot-links"><a href="admin.html">Staff sign-in ↗</a></div>
+    </div>
   </footer>
 </div>
 
@@ -535,6 +557,33 @@ footer .foot-right { text-align: right; max-width: 40ch; }
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
+
+  /* ---------------- shared application store (see admin.html) ---------------- */
+  const STORAGE_KEY = "bridgeline_applications";
+  const COHORT_SIZE = 8;
+
+  function genId() {
+    return (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`).slice(0, 8).toUpperCase();
+  }
+  function addBusinessDays(fromDate, days) {
+    const d = new Date(fromDate);
+    let added = 0;
+    while (added < days) {
+      d.setDate(d.getDate() + 1);
+      const day = d.getDay();
+      if (day !== 0 && day !== 6) added++;
+    }
+    return d.toISOString();
+  }
+  function loadApplications() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveApplication(app) {
+    const all = loadApplications();
+    all.unshift(app);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  }
 
   /* ---------------- scroll reveal ---------------- */
   function wireReveal() {
@@ -588,9 +637,31 @@ footer .foot-right { text-align: right; max-width: 40ch; }
       if (!validateForm()) return;
       submitBtn.disabled = true;
       submitBtn.textContent = "Sending…";
+
+      const submittedAt = new Date().toISOString();
+      const app = {
+        id: genId(),
+        company: $("f-company").value.trim(),
+        name: $("f-name").value.trim(),
+        email: $("f-email").value.trim(),
+        size: $("f-size").value,
+        industry: $("f-industry").value.trim(),
+        message: $("f-message").value.trim(),
+        submittedAt,
+        slaDueAt: addBusinessDays(submittedAt, 5),
+        status: "new",
+        notes: "",
+      };
+
       setTimeout(() => {
+        saveApplication(app);
         form.style.display = "none";
         $("form-success").classList.add("visible");
+        $("receipt-id").textContent = `Application ID ${app.id} · submitted ${new Date(submittedAt).toLocaleDateString()}`;
+        const blob = new Blob([JSON.stringify(app, null, 2)], { type: "application/json" });
+        const dl = $("receipt-dl");
+        dl.href = URL.createObjectURL(blob);
+        dl.download = `bridgeline-application-${app.id}.json`;
       }, 500);
     });
     REQUIRED_IDS.forEach((id) => {
@@ -606,5 +677,6 @@ footer .foot-right { text-align: right; max-width: 40ch; }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 })();
-
 </script>
+</body>
+</html>
